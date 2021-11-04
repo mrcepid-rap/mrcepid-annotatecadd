@@ -1,0 +1,88 @@
+{
+  "name": "mrcepid-annotatecadd",
+  "title": "AnnotateCADD",
+  "summary": "Add CADD values for all variants",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "input_vcfs",
+      "label": "input vcf.gz file(s)",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.vcf.gz"
+      ],
+      "help": ""
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "output_vcfs",
+      "label": "Output filtered vcf",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.vcf.gz"
+      ],
+      "help": ""
+    },
+    {
+      "name": "output_vcf_idxs",
+      "label": "Output filtered vcf index",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.vcf.gz.tbi"
+      ],
+      "help": ""
+    },
+    {
+      "name": "output_veps",
+      "label": "Output VEP annotations",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.tsv.gz"
+      ],
+      "help": ""
+    },
+    {
+      "name": "output_vep_idxs",
+      "label": "Output VEP annotations index",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.tsv.gz.tbi"
+      ],
+      "help": ""
+    }
+  ],
+  "access": {
+    "network": [
+      "*"
+    ]
+  },
+  "runSpec": {
+    "timeoutPolicy": {
+      "*": {
+        "hours": 12
+      }
+    },
+    "interpreter": "python3",
+    "file": "src/mrcepid-annotatecadd.py",
+    "distribution": "Ubuntu",
+    "release": "20.04",
+    "version": "0",
+    "execDepends": []
+  },
+  "regionalOptions": {
+    "aws:eu-west-2": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem1_ssd2_v2_x8"
+        }
+      }
+    }
+  }
+}

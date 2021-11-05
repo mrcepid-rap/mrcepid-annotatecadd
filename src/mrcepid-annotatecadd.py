@@ -13,7 +13,7 @@ import subprocess
 
 # This function runs a command on an instance, either with or without calling the docker instance we downloaded
 # By default, commands are not run via Docker, but can be changed by setting is_docker = True
-def run_cmd(cmd, is_docker=False):
+def run_cmd(cmd: str, is_docker: bool = False) -> None:
 
     if is_docker:
         # -v here mounts a local directory on an instance (in this case the home dir) to a directory internal to the
@@ -43,7 +43,7 @@ def run_cmd(cmd, is_docker=False):
 # This is a helper function to upload a local file and then remove it from the instance.
 # This is different than other applets I have written since CADD takes up so much space.
 # I don't want to have to use a massive instance costing lots of £s!
-def generate_linked_dx_file(file):
+def generate_linked_dx_file(file: str) -> dxpy.DXFile:
 
     linked_file = dxpy.upload_local_file(file)
     cmd = "rm " + file
@@ -53,7 +53,7 @@ def generate_linked_dx_file(file):
 
 # This is just to compartmentalise the collection of all the resources I need for this task and
 # get them into the right place
-def ingest_resources():
+def ingest_resources() -> None:
 
     # Here we are downloading & unpacking resource files that are required for the annotation engine, they are:
     # 1. CADD reference files – These are the resource files so InDel CADD scores can be calculated from scratch
@@ -71,7 +71,7 @@ def ingest_resources():
 
 
 # This function takes a VCF and performs CADD annotation on all variants in it.
-def parse_vcf(vcfprefix):
+def parse_vcf(vcfprefix: str) -> None:
 
     # Generate a sites file that is in the correct format for CADD
     cmd = "bcftools query -f '%CHROM\\t%POS\\t%ID\\t%REF\\t%ALT\\n' -o /test/variants.vcf /test/" + vcfprefix + ".vcf.gz"
@@ -111,6 +111,7 @@ def parse_vcf(vcfprefix):
 
     # And generate a TSV of all information from both this applet AND filterbcf for easy parsing by other users if they
     # want it:
+    # -f here just provides bcftools query with specific INFO fields that we want to print.
     cmd = 'bcftools query -f ' \
           '"%CHROM\\t%POS\\t%REF\\t%ALT\\t%ID\\t%FILTER\\t%INFO/AF\\t%F_MISSING\\t%AN\\t%AC\\t%MANE\\t%ENST\\t%ENSG\\t%BIOTYPE\\t' \
           '%SYMBOL\\t%CSQ\\t%gnomAD_AF\\t%CADD\\t%REVEL\\t%SIFT\\t%POLYPHEN\\t%LOFTEE\\t%PARSED_CSQ\\t%MULTI\\t%INDEL\\t%MINOR\\t' \

@@ -13,7 +13,7 @@
       "patterns": [
         "*.vcf.gz"
       ],
-      "help": ""
+      "help": "Array of input VCF files from mrcepid-filterbcf. Format like: {file-A12345,file-B12345}"
     }
   ],
   "outputSpec": [
@@ -25,7 +25,7 @@
       "patterns": [
         "*.vcf.gz"
       ],
-      "help": ""
+      "help": "Output VCF(s) with CADD annotation"
     },
     {
       "name": "output_vcf_idxs",
@@ -35,7 +35,7 @@
       "patterns": [
         "*.vcf.gz.tbi"
       ],
-      "help": ""
+      "help": "Associated indices for output VCF(s)"
     },
     {
       "name": "output_veps",
@@ -45,7 +45,7 @@
       "patterns": [
         "*.tsv.gz"
       ],
-      "help": ""
+      "help": "Tabix indexed TSV file(s) with per-variant annotation information"
     },
     {
       "name": "output_vep_idxs",
@@ -55,7 +55,7 @@
       "patterns": [
         "*.tsv.gz.tbi"
       ],
-      "help": ""
+      "help": "Associated indices for TSV file(s)"
     }
   ],
   "access": {

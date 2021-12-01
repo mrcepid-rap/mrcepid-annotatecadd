@@ -118,6 +118,12 @@ def parse_vcf(vcfprefix: str) -> None:
           '%MAJOR\\t%MAF\\t%MAC\\n" -o /test/' + vcfprefix + '.vep.tsv /test/' + vcfprefix + ".cadd.vcf.gz"
     run_cmd(cmd, True)
 
+    # Generate a tsv of all alternate alleles at sites with AF < 0.001 for three variant classes so we can get an idea of
+    # how many of these variants exist per-person
+    cmd = 'bcftools query -i \'%INFO/AF<0.001 & %gnomAD_AF < 0.001 & (%PARSED_CSQ == "PTV" | %PARSED_CSQ == "SYN" | %PARSED_CSQ == "MISSENSE") && GT="alt"\' ' \
+          '-f "[%SAMPLE\\t%PARSED_CSQ\\t%INFO/AF\\t%LOFTEE\\n]" -o /test/' + vcfprefix + '.per_indv.tsv /test/' + vcfprefix + ".cadd.vcf.gz"
+    run_cmd(cmd, True)
+
     # And bgzip and tabix this file
     cmd = "bgzip /test/" + vcfprefix + ".vep.tsv"
     run_cmd(cmd, True)
@@ -142,6 +148,7 @@ def main(input_vcfs):
     output_vcf_idxs = [] # indicies for these VCFs
     output_veps = [] # tabix-indexed TSV files containing all annotations for each variant
     output_vep_idxs = [] # indicies for these TSV files
+    output_per_samples = [] # per sample variants
     # Loop through each VCF and do CADD annotation
     for vcf in input_vcfs:
 
@@ -158,6 +165,7 @@ def main(input_vcfs):
         output_vcf_idx = vcfprefix + ".cadd.vcf.gz.tbi"
         output_vep = vcfprefix + ".vep.tsv.gz"
         output_vep_idx = vcfprefix + ".vep.tsv.gz.tbi"
+        output_per_sample = vcfprefix + ".per_indv.tsv"
 
         # Here I am using a function I built for this tool (generated_linked_dx_file()) to conserve space.
         # This function does all the standard "upload to DNANexus" stuff, but also removes the original file
@@ -166,6 +174,7 @@ def main(input_vcfs):
         output_vcf_idxs.append(generate_linked_dx_file(output_vcf_idx))
         output_veps.append(generate_linked_dx_file(output_vep))
         output_vep_idxs.append(generate_linked_dx_file(output_vep_idx))
+        output_per_samples.append(generate_linked_dx_file(output_per_sample))
 
     # Getting files back into your project directory on DNAnexus is a two-step process:
     # 1. uploading the local file to the DNA nexus platform to assign it a file-ID (looks like file-ABCDEFGHIJKLMN1234567890)
@@ -178,7 +187,8 @@ def main(input_vcfs):
     output = {"output_vcfs": [dxpy.dxlink(item) for item in output_vcfs],
               "output_vcf_idxs": [dxpy.dxlink(item) for item in output_vcf_idxs],
               "output_veps": [dxpy.dxlink(item) for item in output_veps],
-              "output_vep_idxs": [dxpy.dxlink(item) for item in output_vep_idxs]}
+              "output_vep_idxs": [dxpy.dxlink(item) for item in output_vep_idxs],
+              "output_per_samples": [dxpy.dxlink(item) for item in output_per_samples]}
     return output
 
 dxpy.run()

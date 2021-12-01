@@ -120,10 +120,11 @@ this, please see the Dockerfile cited in [Docker](#docker) and the applet source
 
 |output                 | description       |
 |-----------------------|-------------------|
-|output_vcfs            |  Output VCF(s) with filtered genotypes and sites, annotated with CADD        |
-|output_vcf_idxs        |  .csi index files for `output_vcfs`                                          |
-|output_veps            |  tabix indexed TSV file with all variants from `outputvcfs` with annotations |
-|output_vep_idxs        |  .tbi index files for `output_veps`                                          |
+|output_vcfs            |  Output VCF(s) with filtered genotypes and sites, annotated with CADD         |
+|output_vcf_idxs        |  .csi index files for `output_vcfs`                                           |
+|output_veps            |  tabix indexed TSV file with all variants from `outputvcfs` with annotations  |
+|output_vep_idxs        |  .tbi index files for `output_veps`                                           |
+|output_per_samples     | .tsv file of variants per-individual to collate number of variants per person |
 
 `output_vcfs` is a standard vcf.gz format file with INFO fields derived from VEP annotations. These fields are identical 
 to those in the paired .tsv.gz file provided with the `output_veps` output. These are the following:

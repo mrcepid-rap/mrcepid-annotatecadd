@@ -114,7 +114,35 @@ this, please see the Dockerfile cited in [Docker](#docker) and the applet source
 
 |input|description             |
 |---- |------------------------|
-|input_vcfs  | List of input vcf files from [mrcepid-filterbcf](https://github.com/mrcepid-rap/mrcepid-filterbcf) to annotate with CADD |
+|input_vcfs  | List of files from [mrcepid-filterbcf](https://github.com/mrcepid-rap/mrcepid-filterbcf) to annotate with CADD |
+|threads|Number of threads available to this instance [**64**] |
+
+`input_vcfs` is a file list that **MUST** contain DNANexus file hash keys (e.g. like file-1234567890ABCDEFGHIJ). A simple
+way to generate such a list is with the following bash/perl one-liner:
+
+```commandline
+dx ls -l filtered_vcfs/ukb23148_c7_b*_v1_chunk*.bcf.norm* | perl -ane 'chomp $_; if ($F[6] =~ /^\((\S+)\)$/) {print "$1\n";}' > cadd_list.txt
+```
+
+This command will:
+
+1. Find all filtered vcf files on chromosome 7 and print in dna nexus "long" format which includes a column for file hash (column 7)
+2. Extract the file hash using a perl one-liner and print one file hash per line
+
+The final input file will look something like:
+
+```text
+file-1234567890ABCDEFGHIJ
+file-2345678901ABCDEFGHIJ
+file-3456789012ABCDEFGHIJ
+file-4567890123ABCDEFGHIJ
+```
+
+This file then needs to be uploaded to the DNANexus platform, so it can be provided as input:
+
+```commandline
+dx upload cadd_list.txt
+```
 
 ### Outputs
 
@@ -167,8 +195,10 @@ Running this command is fairly straightforward using the DNANexus SDK toolkit. F
 
 ```commandline
 # Using file hash
-dx run mrcepid-annotatecadd --priority low --destination filtered_vcfs/ -iinput_vcfs={file-A12345,file-B12345}
+dx run mrcepid-annotatecadd --priority low --destination filtered_vcfs/ -iinput_vcfs=file-A12345
 ```
+
+Where `file-A12345` is the list file described [above](#inputs).
 
 Brief I/O information can also be retrieved on the command line:
 
@@ -182,11 +212,41 @@ Some notes here regarding execution:
    All outputs will be named using a similar convention. **Note the addition** of `.cadd` compared to the output of mrcepid-filterbcf!
 
 2. I have set a sensible (and tested) default for compute resources on DNANexus that is baked into the json used for building the app (at `dxapp.json`)
-   so setting an instance type is unnecessary. This current default is for a mem1_ssd2_v2_x8 instance (8 CPUs, 16 Gb RAM, 200Gb storage).
-   If necessary to adjust compute resources, one can provide a flag like `--instance-type mem1_ssd1_v2_x16`.
+   so setting an instance type is unnecessary. This current default is for a mem3_ssd1_v2_x64 instance (64 CPUs, 512 Gb RAM, 2400Gb storage). 
+   **Please note** that this applet is set up for the parallelisation of many files. To run one file, one needs much less
+   memory. If necessary to adjust compute resources, one can provide a flag like `--instance-type mem3_ssd1_v2_x8` to
+   `dx run`. If you do change the instance **YOU MUST** change the `threads` input parameter accordingly, or you may run
+   into issues with over-use of CPU resources on the instance.
    
-3. Note the `{}` arround the two file hashes – this is how one provides multiple files as an input array to a DNANexus applet
-
 #### Batch Running
 
-t.b.d. A fast way of collating multiple VCF files together as an array needs to be determined.
+It is easier to implement batch running manually, rather than use built-in DNANexus batch functionality. In brief, first
+generate a list of all files that need to be run through the process as outlined [above](#inputs):
+
+```commandline
+dx ls -l filtered_vcfs/ukb23148_c7_b*_v1_chunk*.norm.filtered.tagged.missingness_filtered.annotated.bcf | \ 
+    perl -ane 'chomp $_; if ($F[6] =~ /^\((\S+)\)$/) {print "$1\n";}' > cadd_list.txt
+```
+
+Then, simply use the *NIX default split command to generate a set of individual files that can work through all the files
+found above on individual instances:
+
+```commandline
+split -a 1 -l 31 cadd_list.txt cadd_list_
+```
+
+A few important notes on the above:
+1. We set the number of files per-list to 31 (using `-l 31`) because our instance has 64 cores and requires 2 cores per
+   file. This means we should be able to run a total of 32 files at a time, but we need a core to be able to monitor
+   these processes, thus why we do 31 files.
+2. We CAN set the number of files to greater than 31, but this means other files need to finish processing before others
+   can start, meaning runtime will be longer than expected.
+3. This will create files named cadd_list_a, cadd_list_b, cadd_list_c, etc.
+
+Then we upload to dna nexus, and generate a set of commands that will then run this applet:
+
+```commandline
+dx upload bcf_list_* --destination batch_lists/
+dx ls -l batch_lists/cadd_list_* | \
+    perl -ane 'chomp $_; if ($F[6] =~ /^\((\S+)\)$/) {print "dx run mrcepid-annotatecadd --priority low -iinput_vcfs=$1 --destination filtered_vcfs/ --yes --brief;\n";}' | bash
+```

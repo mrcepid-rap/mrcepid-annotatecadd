@@ -7,13 +7,21 @@
   "inputSpec": [
     {
       "name": "input_vcfs",
-      "label": "input vcf.gz file(s)",
-      "class": "array:file",
+      "label": "list of input vcf.gz file(s)",
+      "class": "file",
       "optional": false,
       "patterns": [
-        "*.vcf.gz"
+        "*.txt"
       ],
-      "help": "Array of input VCF files from mrcepid-filterbcf. Format like: {file-A12345,file-B12345}"
+      "help": "List of input VCF files from mrcepid-filterbcf."
+    },
+    {
+      "name": "threads",
+      "label": "number of threads available to this instance",
+      "class": "int",
+      "optional": true,
+      "default": 32,
+      "help": "Number of threads available to this instance."
     }
   ],
   "outputSpec": [
@@ -23,7 +31,7 @@
       "class": "array:file",
       "optional": false,
       "patterns": [
-        "*.vcf.gz"
+        "*.bcf"
       ],
       "help": "Output VCF(s) with CADD annotation"
     },
@@ -33,7 +41,7 @@
       "class": "array:file",
       "optional": false,
       "patterns": [
-        "*.vcf.gz.tbi"
+        "*.bcf.csi"
       ],
       "help": "Associated indices for output VCF(s)"
     },
@@ -65,7 +73,8 @@
       "patterns": [
         "*.tsv"
       ],
-      "help": "Per-sample variants with AF < 1e-3 for QC.",
+      "help": "Per-sample variants with AF < 1e-3 for QC."
+    }
   ],
   "access": {
     "network": [
@@ -75,7 +84,7 @@
   "runSpec": {
     "timeoutPolicy": {
       "*": {
-        "hours": 12
+        "hours": 48
       }
     },
     "interpreter": "python3",
@@ -89,7 +98,7 @@
     "aws:eu-west-2": {
       "systemRequirements": {
         "*": {
-          "instanceType": "mem1_ssd2_v2_x8"
+          "instanceType": "mem2_ssd1_v2_x32"
         }
       }
     }

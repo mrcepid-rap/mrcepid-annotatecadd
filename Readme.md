@@ -93,7 +93,7 @@ directories listed here:
 
 ## Methodology
 
-This applet is step 2 (mrc-annotatecadd) of the rare variant testing pipeline developed by Eugene Gardner for the UKBiobank
+This applet is step 3 (mrc-annotatecadd) of the rare variant testing pipeline developed by Eugene Gardner for the UKBiobank
 RAP at the MRC Epidemiology Unit:
 
 ![](https://github.com/mrcepid-rap/.github/blob/main/images/RAPPipeline.png)

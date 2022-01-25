@@ -115,7 +115,6 @@ this, please see the Dockerfile cited in [Docker](#docker) and the applet source
 |input|description             |
 |---- |------------------------|
 |input_vcfs  | List of files from [mrcepid-filterbcf](https://github.com/mrcepid-rap/mrcepid-filterbcf) to annotate with CADD |
-|threads|Number of threads available to this instance [**64**] |
 
 `input_vcfs` is a file list that **MUST** contain DNANexus file hash keys (e.g. like file-1234567890ABCDEFGHIJ). A simple
 way to generate such a list is with the following bash/perl one-liner:
@@ -215,8 +214,7 @@ Some notes here regarding execution:
    so setting an instance type is unnecessary. This current default is for a mem3_ssd1_v2_x64 instance (64 CPUs, 512 Gb RAM, 2400Gb storage). 
    **Please note** that this applet is set up for the parallelisation of many files. To run one file, one needs much less
    memory. If necessary to adjust compute resources, one can provide a flag like `--instance-type mem3_ssd1_v2_x8` to
-   `dx run`. If you do change the instance **YOU MUST** change the `threads` input parameter accordingly, or you may run
-   into issues with over-use of CPU resources on the instance.
+   `dx run`.
    
 #### Batch Running
 

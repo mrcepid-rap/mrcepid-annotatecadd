@@ -163,7 +163,7 @@ def annotate_cadd(vcf: str) -> None:
 
 
 @dxpy.entry_point('main')
-def main(input_vcfs, threads):
+def main(input_vcfs):
 
     # Bring our docker image into our environment so that we can run commands we need:
     cmd = "docker pull egardner413/mrcepid-annotatecadd:latest"

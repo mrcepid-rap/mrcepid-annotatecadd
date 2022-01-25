@@ -14,14 +14,6 @@
         "*.txt"
       ],
       "help": "List of input VCF files from mrcepid-filterbcf."
-    },
-    {
-      "name": "threads",
-      "label": "number of threads available to this instance",
-      "class": "int",
-      "optional": true,
-      "default": 32,
-      "help": "Number of threads available to this instance."
     }
   ],
   "outputSpec": [

@@ -10,6 +10,7 @@
 import dxpy
 import subprocess
 import math
+import os
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
@@ -164,6 +165,10 @@ def annotate_cadd(vcf: str) -> None:
 
 @dxpy.entry_point('main')
 def main(input_vcfs):
+
+    # Get threads available to this instance
+    threads = os.cpu_count()
+    print('Number of threads available: %i' % threads)
 
     # Bring our docker image into our environment so that we can run commands we need:
     cmd = "docker pull egardner413/mrcepid-annotatecadd:latest"

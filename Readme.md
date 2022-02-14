@@ -156,31 +156,40 @@ dx upload cadd_list.txt
 `output_vcfs` is a standard vcf.gz format file with INFO fields derived from VEP annotations. These fields are identical 
 to those in the paired .tsv.gz file provided with the `output_veps` output. These are the following:
 
-| INFO Field | row number in .tsv.gz | Short Description |
-| ---------- | ----------------- | -----------------------|
-| AF | 7 | Allele Frequency of the allele listed in `ALT` |
-| F_MISSING | 8 | Proportion of missing (./.) genotypes |
-| AN | 9 | Number of possible alleles ([sample size - n.missing] * 2)
-| AC | 10 | Number of non-reference alleles of the allele listed in `ALT` |
-| MANE | 11 | The [MANE](https://www.ncbi.nlm.nih.gov/refseq/MANE/) transcript for this variant |
-| ENST | 12 | ENSEMBL transcript (e.g. ENST) for this variant |
-| ENSG | 13 | ENSEMBL gene (e.g. ENSG) for this variant | 
-| BIOTYPE | 14 | VEP [biotype](https://m.ensembl.org/info/genome/genebuild/biotypes.html) of the ENST. Should always be "protein_coding" |
-| SYMBOL | 15 | [HGNC Gene](https://www.genenames.org/) symbol | 
-| CSQ | 16 | VEP annotated [CSQ](https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html) |
-| gnomAD_AF | 17 | Non-Finnish European allele frequency of this variant in gnomAD exomes. 0 if not in gnomAD |
-| CADD | 18 | [CADDv1.6](https://cadd.gs.washington.edu/) phred score |
-| REVEL | 19 | [REVEL](https://sites.google.com/site/revelgenomics/) score for this variant if CSQ is "missense", else nan |
-| SIFT | 20 | [SIFT](https://sift.bii.a-star.edu.sg/) score for this variant if CSQ is "missense", else NA |
-| POLYPHEN | 21 | [POLYPHEN](http://genetics.bwh.harvard.edu/pph2/) score for this variant if CSQ is "missense", else NA |
-| LOFTEE | 22 | [LOFTEE score](https://github.com/konradjk/loftee) for this variant if PARSED_CSQ is "PTV", else NA. Variants with a "HC" value are high-confidence and should be retained for testing |
-| PARSED_CSQ | 23 | Eugene-determined consequence. See the README for [mrcepid-filterbcf](https://github.com/mrcepid-rap/mrcepid-filterbcf) for more information |
-| MULTI | 24 | Was this variant original multiallelic? Determined based on presence of at least one ";" in the ID field |
-| INDEL | 25 | Is this variant an InDel? True if len(REF) != len(ALT) | 
-| MINOR | 26 | The minor allele for this variant. Will be the same as ALT if AF < 0.5 |
-| MAJOR | 27 | The minor allele for this variant. Will be the same as REF if AF < 0.5 |
-| MAF | 28 | The minor allele frequency for this variant. Will be the same as AF if AF < 0.5 |
-| MAC | 29 | The minor allele count for this variant. Will be the same as AC if AF < 0.5 |
+| INFO Field | row number in .tsv.gz | Field dtype (pandas) | Possible Levels (If Factor) | Short Description |
+| ---------- | ----------------- | ---- | ---- | -----------------------|
+| CHROM | 1 | object | chr1-chr22,chrX, chrY | chromosome of variant |
+| POS | 2 | int64 | NA | position of variant |
+| REF | 3 | object | NA | reference allele (Note that this is not major/minor allele!) |
+| ALT | 4 | object | NA | alternate allele (Note that this is not major/minor allele!) |
+| varID | 5 | object | NA | variant ID. Simple a concatenation like CHROM:POS:REF:ALT. This ID should be used to match on per-marker association test results. |
+| ogVarID| 6 | object | NA | original variant ID in UKBiobank VCF files. **Note:** This ID SHOULD NOT be used to match on association test results. It is included for posterity and to allow matching on original UK Biobank VCF files. |
+| FILTER | 7 | object | PASS, FAIL | Did this variant pass QC? |
+| AF | 8 | float64 | NA |Allele Frequency of the allele listed in `ALT` |
+| F_MISSING | 9 | float64 | NA | Proportion of missing (./.) genotypes |
+| AN | 10 | int64 | NA | Number of possible alleles ([sample size - n.missing] * 2)
+| AC | 11 | int64 | NA | Number of non-reference alleles of the allele listed in `ALT` |
+| MANE | 12 | object | NA | The [MANE](https://www.ncbi.nlm.nih.gov/refseq/MANE/) transcript for this variant |
+| ENST | 13 | object | NA | ENSEMBL transcript (e.g. ENST) for this variant |
+| ENSG | 14 | object | NA | ENSEMBL gene (e.g. ENSG) for this variant | 
+| BIOTYPE | 15 | object | protein_coding | VEP [biotype](https://m.ensembl.org/info/genome/genebuild/biotypes.html) of the ENST. |
+| SYMBOL | 16 | object | NA | [HGNC Gene](https://www.genenames.org/) symbol | 
+| CSQ | 17 | object | All possible values in [this table](https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html). | VEP annotated [CSQ](https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html) |
+| gnomAD_AF | 18 | float64 | NA | Non-Finnish European allele frequency of this variant in gnomAD exomes. 0 if not in gnomAD |
+| CADD | 19 | float64 | NA | [CADDv1.6](https://cadd.gs.washington.edu/) phred score |
+| REVEL | 20 | float64 | NA | [REVEL](https://sites.google.com/site/revelgenomics/) score for this variant if CSQ is "missense", else nan |
+| SIFT | 21 | object | NA | [SIFT](https://sift.bii.a-star.edu.sg/) score for this variant if CSQ is "missense", else NA |
+| POLYPHEN | 22 | object | NA | [POLYPHEN](http://genetics.bwh.harvard.edu/pph2/) score for this variant if CSQ is "missense", else NA |
+| LOFTEE | 23 | object | HC,LC |[LOFTEE score](https://github.com/konradjk/loftee) for this variant if PARSED_CSQ is "PTV", else NA. Variants with a "HC" value are high-confidence and should be retained for testing |
+| AA | 24 | object | NA | The amino acid change if a missense, InDel, or PTV variant |
+| AApos | 25 | object | NA | The position of this variant in the translated protein of this ENST (based on associated ENSP ID) |
+| PARSED_CSQ | 26 | object | All possible values in [this table](https://github.com/mrcepid-rap/mrcepid-filterbcf#4-parsing-vep-consequences). |Eugene-determined consequence. See the README for [mrcepid-filterbcf](https://github.com/mrcepid-rap/mrcepid-filterbcf) for more information |
+| MULTI | 27 | bool | True, False | Was this variant original multiallelic? Determined based on presence of at least one ";" in the ID field |
+| INDEL | 28 | bool | True, False | Is this variant an InDel? True if len(REF) != len(ALT) | 
+| MINOR | 29 | object | NA | The minor allele for this variant. Will be the same as ALT if AF < 0.5 |
+| MAJOR | 30 | object | NA | The minor allele for this variant. Will be the same as REF if AF < 0.5 |
+| MAF | 31 | float64 | NA | The minor allele frequency for this variant. Will be the same as AF if AF < 0.5 |
+| MAC | 32 | int64 | NA | The minor allele count for this variant. Will be the same as AC if AF < 0.5 |
 
 ### Command line example
 
